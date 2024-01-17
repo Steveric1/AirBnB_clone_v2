@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """ Console Module """
 import cmd
+# import ast
 import sys
 from models.base_model import BaseModel
 from models.__init__ import storage
@@ -113,15 +114,44 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
+    # def do_create(self, args):
+    #     """ Create an object of any class"""
+    #     if not args:
+    #         print("** class name missing **")
+    #         return
+    #     elif args not in HBNBCommand.classes:
+    #         print("** class doesn't exist **")
+    #         return
+    #     new_instance = HBNBCommand.classes[args]()
+    #     storage.save()
+    #     print(new_instance.id)
+    #     storage.save()
+    
     def do_create(self, args):
-        """ Create an object of any class"""
+        """Create an object of any class with parameters"""
         if not args:
-            print("** class name missing **")
+            print("Class name missing")
             return
-        elif args not in HBNBCommand.classes:
-            print("** class doesn't exist **")
+
+        class_name, *params = args.split()
+        if class_name not in HBNBCommand.classes:
+            print("Class doesn't exist")
+            return  # Exit the method if the class doesn't exist
+
+        try:
+            new_instance = HBNBCommand.classes[class_name]()
+            for param in params:
+                key, value = param.split('=')
+                key = key.replace("_", " ")
+                try:
+                    setattr(new_instance, key, eval(value.replace('\"', '"')))
+                except (ValueError, SyntaxError, NameError) as e:
+                    print("Invalid parameter value for {}: {}".format(key, str(e)))
+                    return
+        except Exception as e:
+            print("Error creating instance: {}".format(str(e)))
             return
-        new_instance = HBNBCommand.classes[args]()
+
         storage.save()
         print(new_instance.id)
         storage.save()
