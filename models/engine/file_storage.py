@@ -27,7 +27,8 @@ class FileStorage:
         if obj:
             for key, val in FileStorage.__objects.items():
                 if key == obj:
-                    del FileStorage.__objects['key']
+                    del FileStorage.__objects[key]
+                    break
         else:
             return
 
