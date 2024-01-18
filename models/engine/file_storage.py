@@ -14,11 +14,8 @@ class FileStorage:
         
         if cls:
             for key, value in self.__objects.items():
-                # clss_name = key.split('.')
                 if cls == value.__class__ or cls == value.__class__.__name__:
                     res[key] = value
-                # if clss_name == cls.name:
-                #     res[key] = value
             return res
         return self.__objects
     
