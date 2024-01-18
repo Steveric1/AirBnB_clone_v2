@@ -14,7 +14,7 @@ class FileStorage:
         
         if cls:
             for key, value in FileStorage.__objects.items():
-                clss_name, obj_id = key.split('.')
+                clss_name = key.split('.')
                 if clss_name == cls.name:
                     res[key] = value
         else:
@@ -25,9 +25,15 @@ class FileStorage:
     def delete(self, obj=None):
         """delete obj from objects"""
         if obj:
-            del FileStorage.__objects["{}.{}".format(type(obj).__name__, obj.id)]
-        else:
-            return
+            # for key, val in FileStorage.__objects.items():
+            #     if obj == key:
+            #         del FileStorage.__objects[key]
+            key = "{}.{}".format(type(obj).__name__, obj.id)
+            del FileStorage.__objects[key]            
+            # if obj in FileStorage.__objects:
+            #     del FileStorage.__Objects[obj]
+        # else:
+        #     return
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
