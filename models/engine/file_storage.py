@@ -24,16 +24,10 @@ class FileStorage:
     
     def delete(self, obj=None):
         """delete obj from objects"""
-        if obj:
-            # for key, val in FileStorage.__objects.items():
-            #     if obj == key:
-            #         del FileStorage.__objects[key]
-            key = "{}.{}".format(type(obj).__name__, obj.id)
-            del FileStorage.__objects[key]            
-            # if obj in FileStorage.__objects:
-            #     del FileStorage.__Objects[obj]
-        # else:
-        #     return
+        try:
+            del self.__objects["{}.{}".format(type(obj).__name__, obj.id)]
+        except (AttributeError, KeyError):
+            pass
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
