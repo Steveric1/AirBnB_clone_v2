@@ -13,18 +13,18 @@ class FileStorage:
         res = {}
 
         if cls:
-            for key, value in FileStorage.__objects.items():
+            for key, value in self.__objects.items():
                 if cls == value.__class__ or cls == value.__class__.__name__:
                     res[key] = value
             return res
-        return FileStorage.__objects
+        return self.__objects
 
     def delete(self, obj=None):
         """delete obj from objects"""
         if obj:
-            for key, val in FileStorage.__objects.items():
+            for key, val in self.__objects.items():
                 if key == obj:
-                    del FileStorage.__objects[key]
+                    del self.__objects[key]
                     break
         else:
             return
