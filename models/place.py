@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
-from models.base_model import BaseModel, Base
-from sqlalchemy import Column, String, integer
+from models.base_model import BaseModel
+# from sqlalchemy import Column, String, Integer, ForeignKey
 
 
 class Place(BaseModel):
@@ -17,3 +17,5 @@ class Place(BaseModel):
     latitude = 0.0
     longitude = 0.0
     amenity_ids = []
+    
+    # __tablename__ = 
