@@ -1,14 +1,25 @@
 #!/usr/bin/env bash
-#Bash script that sets up your web servers for the deployment of web_static
+# This script sets up webservers for the deployment of the webstatic
 
-server="\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t}"
-file="/etc/nginx/sites-available/default"
-sudo apt-get update -y
-sudo apt-get install nginx -y
-sudo mkdir -p "/data/web_static/releases/test/"
-sudo mkdir "/data/web_static/shared/"
-echo "Holberton" > "/data/web_static/releases/test/index.html"
-rm -f "/data/web_static/current"; ln -s "/data/web_static/releases/test/" "/data/web_static/current"
-sudo chown -hR ubuntu:ubuntu "/data/"
-sudo sed -i "29i\ $server" "$file"
-sudo service nginx restart
+# Update and install nginx if it doesnt exist
+apt-get -y update
+apt-get -y install nginx
+
+# create these folders if they dont exist
+mkdir -p /data/web_static/releases/test/ /data/web_static/shared/
+
+# create an html file with fake content to test configuration
+echo -e "<html>\n\t<head>\n\t</head>\n\t<body>\n\t\t<h1>Hello ALX</h1>\n\t</body>\n</html>" > /data/web_static/releases/test/index.html
+
+# remove the symbolic link if exist and recreate it
+rm -rf /data/web_static/current
+ln -s /data/web_static/releases/test/ /data/web_static/current
+
+# give ownership to the user and group ubuntu
+chown -R ubuntu:ubuntu /data/
+
+# update the nginx config the content of /data/web_static/current/ to hbnb_static
+sed -i "s/^\s*location \/ {/\tlocation \/hbnb_static {\n\t\talias \/data\/web_static\/current\/;\n\t}\n\n&/" /etc/nginx/sites-enabled/default
+
+# restart the server
+service nginx restart
