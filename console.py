@@ -11,6 +11,7 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+from replace import escape_double_quotes
 
 
 class HBNBCommand(cmd.Cmd):
@@ -136,22 +137,21 @@ class HBNBCommand(cmd.Cmd):
         class_name, *params = args.split()
         if class_name not in HBNBCommand.classes:
             print("Class doesn't exist")
-            return  # Exit the method if the class doesn't exist
-
+            return
+        
         try:
             new_instance = HBNBCommand.classes[class_name]()
             for param in params:
                 key, value = param.split('=')
-                key = key.replace("_", " ")
+                value = value.replace('_', ' ')
                 try:
-                    setattr(new_instance, key, eval(value.replace('\"', '"')))
+                    setattr(new_instance, key, escape_double_quotes(value))
                 except (ValueError, SyntaxError, NameError) as e:
                     print("Invalid parameter value for {}: {}".format(key, str(e)))
                     return
         except Exception as e:
             print("Error creating instance: {}".format(str(e)))
-            return
-
+            return        
         storage.save()
         print(new_instance.id)
         storage.save()
