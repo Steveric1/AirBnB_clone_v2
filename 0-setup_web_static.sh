@@ -1,26 +1,62 @@
 #!/usr/bin/env bash
-# This script sets up webservers for the deployment of the webstatic
+# Installs, configures, and starts the web server
+SERVER_CONFIG="server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
 
-# Update and install nginx if it doesnt exist
-apt-get -y update
-apt-get -y install nginx
+	server_name _;
+	index index.html index.htm;
+	error_page 404 /404.html;
+	add_header X-Served-By \$hostname;
 
-function server_config {
-    # Create the directories if they dont exist
-    mkdir -p "/data/web_static/releases/test/"
-    mkdir -p "/data/web_static/shared/"
+	location / {
+		root /var/www/html/;
+		try_files \$uri \$uri/ =404;
+	}
 
-    # Create a fake html file
-    echo -e "<html>\n\t<head>\n\t</head>\n\t<body>\n\t\t<h1>Hello ALX</h1>\n\t</body>\n</html>" > /data/web_static/releases/test/index.html
-    # Set ownership of the directories
-    chown -R ubuntu:ubuntu /data/
-    # Create a symbolic link
-    ln -sf "/data/web_static/releases/test/" "/data/web_static/current"
-    # Update the nginx configuration
-    sed -i "38i location /hbnb_static/ {\n\talias /data/web_static/current/;\n}" "/etc/nginx/sites-available/default"
-    # Restart the nginx service
-    service nginx restart
-}
+	location /hbnb_static/ {
+		alias /data/web_static/current/;
+		try_files \$uri \$uri/ =404;
+	}
 
-# Call the function
-server_config
+	if (\$request_filename ~ redirect_me) {
+		rewrite ^ https://sketchfab.com/bluepeno/models permanent;
+	}
+
+	location = /404.html {
+		root /var/www/error/;
+		internal;
+	}
+}"
+HOME_PAGE="<!DOCTYPE html>
+<html lang='en-US'>
+	<head>
+		<title>Home - AirBnB Clone</title>
+	</head>
+	<body>
+		<h1>Welcome to AirBnB!</h1>
+	<body>
+</html>
+"
+# shellcheck disable=SC2230
+if [[ "$(which nginx | grep -c nginx)" == '0' ]]; then
+    apt-get update
+    apt-get -y install nginx
+fi
+mkdir -p /var/www/html /var/www/error
+chmod -R 755 /var/www
+echo 'Hello World!' > /var/www/html/index.html
+echo -e "Ceci n\x27est pas une page" > /var/www/error/404.html
+
+mkdir -p /data/web_static/releases/test /data/web_static/shared
+echo -e "$HOME_PAGE" > /data/web_static/releases/test/index.html
+[ -d /data/web_static/current ] && rm -rf /data/web_static/current
+ln -sf /data/web_static/releases/test/ /data/web_static/current
+chown -hR ubuntu:ubuntu /data
+bash -c "echo -e '$SERVER_CONFIG' > /etc/nginx/sites-available/default"
+ln -sf '/etc/nginx/sites-available/default' '/etc/nginx/sites-enabled/default'
+if [ "$(pgrep -c nginx)" -le 0 ]; then
+	service nginx start
+else
+	service nginx restart
+fi
